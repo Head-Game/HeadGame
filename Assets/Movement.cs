@@ -24,8 +24,8 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
-        float horizontal = -Input.GetAxis("Horizontal"); // Inverted
-        float vertical = -Input.GetAxis("Vertical");     // Inverted
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
 
         Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
 
@@ -42,10 +42,13 @@ public class PlayerMovement : MonoBehaviour
         float turnHorizontal = Input.GetAxis("KeypadHorizontal");
         float turnVertical = Input.GetAxis("KeypadVertical");
 
-        xRotation -= turnVertical * turnSpeed; // Adjust the '-' sign as needed
+        xRotation -= turnVertical * turnSpeed;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f); // Up and down rotation on the camera
-        transform.Rotate(Vector3.up * turnHorizontal * turnSpeed); // Left and right rotation on the player
+        // Combine both vertical and horizontal rotations
+        float newYRotation = cameraTransform.eulerAngles.y + turnHorizontal * turnSpeed;
+        cameraTransform.rotation = Quaternion.Euler(xRotation, newYRotation, 0f);
     }
+
+
 }
