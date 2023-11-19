@@ -5,12 +5,12 @@ public class Blade : MonoBehaviour
     public Vector3 direction { get; private set; }
 
     private Camera mainCamera;
-
     private Collider sliceCollider;
     private TrailRenderer sliceTrail;
 
     public float sliceForce = 5f;
     public float minSliceVelocity = 0.01f;
+    public float slicingRadius = 5f; // Radius within which slicing occurs
 
     private bool slicing;
 
@@ -33,20 +33,24 @@ public class Blade : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0)) {
+        if (Input.GetMouseButtonDown(0))
+        {
             StartSlice();
-        } else if (Input.GetMouseButtonUp(0)) {
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
             StopSlice();
-        } else if (slicing) {
+        }
+        else if (slicing)
+        {
             ContinueSlice();
         }
     }
 
     private void StartSlice()
     {
-        Vector3 position = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        position.z = 0f;
-        transform.position = position;
+        Vector3 startPosition = CalculatePositionOnRadius(mainCamera.transform.position, mainCamera.transform.forward);
+        transform.position = startPosition;
 
         slicing = true;
         sliceCollider.enabled = true;
@@ -63,9 +67,7 @@ public class Blade : MonoBehaviour
 
     private void ContinueSlice()
     {
-        Vector3 newPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        newPosition.z = 0f;
-
+        Vector3 newPosition = mainCamera.transform.position + mainCamera.transform.forward * slicingRadius;
         direction = newPosition - transform.position;
 
         float velocity = direction.magnitude / Time.deltaTime;
@@ -74,4 +76,9 @@ public class Blade : MonoBehaviour
         transform.position = newPosition;
     }
 
+    private Vector3 CalculatePositionOnRadius(Vector3 origin, Vector3 direction)
+    {
+        Vector3 flatDirection = new Vector3(direction.x, 0, direction.z).normalized;
+        return origin + flatDirection * slicingRadius;
+    }
 }

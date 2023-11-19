@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    private Collider spawnArea;
-
     public GameObject[] fruitPrefabs;
     public GameObject bombPrefab;
     [Range(0f, 1f)] public float bombChance = 0.05f;
@@ -20,10 +18,7 @@ public class Spawner : MonoBehaviour
 
     public float maxLifetime = 5f;
 
-    private void Awake()
-    {
-        spawnArea = GetComponent<Collider>();
-    }
+    public float spawnRadius = 5f; // Public property to easily adjust the spawn radius
 
     private void OnEnable()
     {
@@ -43,14 +38,14 @@ public class Spawner : MonoBehaviour
         {
             GameObject prefab = fruitPrefabs[Random.Range(0, fruitPrefabs.Length)];
 
-            if (Random.value < bombChance) {
+            if (Random.value < bombChance)
+            {
                 prefab = bombPrefab;
             }
 
-            Vector3 position = new Vector3();
-            position.x = Random.Range(spawnArea.bounds.min.x, spawnArea.bounds.max.x);
-            position.y = Random.Range(spawnArea.bounds.min.y, spawnArea.bounds.max.y);
-            position.z = Random.Range(spawnArea.bounds.min.z, spawnArea.bounds.max.z);
+            // Generate a random position on a circle in the XZ plane
+            float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+            Vector3 position = new Vector3(Mathf.Cos(angle) * spawnRadius, transform.position.y, Mathf.Sin(angle) * spawnRadius);
 
             Quaternion rotation = Quaternion.Euler(0f, 0f, Random.Range(minAngle, maxAngle));
 
@@ -58,10 +53,10 @@ public class Spawner : MonoBehaviour
             Destroy(fruit, maxLifetime);
 
             float force = Random.Range(minForce, maxForce);
-            fruit.GetComponent<Rigidbody>().AddForce(fruit.transform.up * force, ForceMode.Impulse);
+            // Apply force only in the Y direction (upwards)
+            fruit.GetComponent<Rigidbody>().AddForce(Vector3.up * force, ForceMode.Impulse);
 
             yield return new WaitForSeconds(Random.Range(minSpawnDelay, maxSpawnDelay));
         }
     }
-
 }
