@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/Scripts/PlayerController.cs.meta
-guid: 466fefbdc13e5462e99356b44cfc659a
-========
-guid: 95a81be6c9d47f64d9e8262eed6997fb
->>>>>>>> ayang_fruit_ninja:Assets/Scripts/Blade.cs.meta
+guid: 2029e1e563546de449e26436fe25cd8b
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
