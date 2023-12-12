@@ -20,8 +20,20 @@ public class Spawner : MonoBehaviour
 
     public float spawnRadius = 5f; // Public property to easily adjust the spawn radius
 
-    private void OnEnable()
+    private void Start()
     {
+        // Initialize the spawn sounds for the fruits
+        Fruit.spawnClips = new AudioClip[]
+        {
+            Resources.Load<AudioClip>("temp1"),
+            Resources.Load<AudioClip>("temp2"),
+            Resources.Load<AudioClip>("temp3"),
+            Resources.Load<AudioClip>("temp4")
+        };
+
+        // Initialize the slice sound for the fruits
+        Fruit.sliceClip = Resources.Load<AudioClip>("example_sound");
+
         StartCoroutine(Spawn());
     }
 
@@ -53,7 +65,6 @@ public class Spawner : MonoBehaviour
             Destroy(fruit, maxLifetime);
 
             float force = Random.Range(minForce, maxForce);
-            // Apply force only in the Y direction (upwards)
             fruit.GetComponent<Rigidbody>().AddForce(Vector3.up * force, ForceMode.Impulse);
 
             yield return new WaitForSeconds(Random.Range(minSpawnDelay, maxSpawnDelay));
