@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Spawner : MonoBehaviour
 {
@@ -7,8 +8,10 @@ public class Spawner : MonoBehaviour
     public GameObject bombPrefab;
     [Range(0f, 1f)] public float bombChance = 0.05f;
 
-    public float minSpawnDelay = 0.25f;
-    public float maxSpawnDelay = 1f;
+    public float initialMinSpawnDelay = 1f;   // Higher initial spawn delay
+    public float initialMaxSpawnDelay = 2f;   // Higher initial spawn delay
+    public float finalMinSpawnDelay = 0.25f;  // Lower final spawn delay
+    public float finalMaxSpawnDelay = 1f;     // Lower final spawn delay
 
     public float minAngle = -15f;
     public float maxAngle = 15f;
@@ -16,13 +19,22 @@ public class Spawner : MonoBehaviour
     public float minForce = 18f;
     public float maxForce = 22f;
 
+    public float minGravity = 0.5f;
+    public float maxGravity = 2f;
+
     public float maxLifetime = 5f;
 
-    public float spawnRadius = 5f; // Public property to easily adjust the spawn radius
+    public float spawnRadius = 5f;
+
+    public Text levelText;
+
+    private int level = 1;
+    private float levelUpTime = 30f;
+    private float nextLevelUp;
 
     private void Start()
     {
-        // Initialize the spawn sounds for the fruits
+        // Set up audio clips
         Fruit.spawnClips = new AudioClip[]
         {
             Resources.Load<AudioClip>("temp1"),
@@ -30,11 +42,13 @@ public class Spawner : MonoBehaviour
             Resources.Load<AudioClip>("temp3"),
             Resources.Load<AudioClip>("temp4")
         };
-
-        // Initialize the slice sound for the fruits
         Fruit.sliceClip = Resources.Load<AudioClip>("example_sound");
+        Bomb.explosionClip = Resources.Load<AudioClip>("gameover");
+        Bomb.tickingClip = Resources.Load<AudioClip>("tick");
 
         StartCoroutine(Spawn());
+        nextLevelUp = Time.time + levelUpTime;
+        UpdateLevelText();
     }
 
     private void OnDisable()
@@ -48,26 +62,61 @@ public class Spawner : MonoBehaviour
 
         while (enabled)
         {
-            GameObject prefab = fruitPrefabs[Random.Range(0, fruitPrefabs.Length)];
-
-            if (Random.value < bombChance)
+            if (Time.time >= nextLevelUp)
             {
-                prefab = bombPrefab;
+                LevelUp();
             }
 
-            // Generate a random position on a circle in the XZ plane
-            float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
-            Vector3 position = new Vector3(Mathf.Cos(angle) * spawnRadius, transform.position.y, Mathf.Sin(angle) * spawnRadius);
+            GameObject prefab = fruitPrefabs[Random.Range(0, fruitPrefabs.Length)];
+            if (Random.value < bombChance) prefab = bombPrefab;
 
+            Vector3 position = GenerateSpawnPosition();
             Quaternion rotation = Quaternion.Euler(0f, 0f, Random.Range(minAngle, maxAngle));
 
             GameObject fruit = Instantiate(prefab, position, rotation);
+            Rigidbody fruitRb = fruit.GetComponent<Rigidbody>();
+
+            float force = Mathf.Lerp(minForce, maxForce, level / 10f);
+            fruitRb.AddForce(Vector3.up * force, ForceMode.Impulse);
+
+            float gravityScale = Mathf.Lerp(maxGravity, minGravity, 1f - (level / 10f));
+            fruitRb.mass = gravityScale;
+
             Destroy(fruit, maxLifetime);
 
-            float force = Random.Range(minForce, maxForce);
-            fruit.GetComponent<Rigidbody>().AddForce(Vector3.up * force, ForceMode.Impulse);
-
-            yield return new WaitForSeconds(Random.Range(minSpawnDelay, maxSpawnDelay));
+            float spawnDelay = Mathf.Lerp(initialMaxSpawnDelay, finalMinSpawnDelay, level / 10f);
+            yield return new WaitForSeconds(spawnDelay);
         }
+    }
+
+    private Vector3 GenerateSpawnPosition()
+    {
+        float angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Cos(angle) * spawnRadius, transform.position.y, Mathf.Sin(angle) * spawnRadius);
+    }
+
+    private void LevelUp()
+    {
+        level++;
+        nextLevelUp = Time.time + levelUpTime;
+        bombChance = Mathf.Min(bombChance * 2, 0.5f); // Double the bomb chance with a cap
+
+        UpdateLevelText();
+    }
+
+    public void ResetLevel()
+    {
+        level = 1;
+        bombChance = 0.05f; // Reset bomb chance
+        UpdateLevelText();
+        // Reset other parameters if needed
+    }
+
+    private void UpdateLevelText()
+    {
+        if (levelText != null)
+            levelText.text = "Level: " + level;
+        else
+            Debug.LogError("Level text UI is not assigned!");
     }
 }
