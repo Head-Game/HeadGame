@@ -40,10 +40,16 @@ public class Bomb : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            PlaySound(explosionClip);
             GetComponent<Collider>().enabled = false;
+            PlaySound(explosionClip);
             FindObjectOfType<GameManager>().Explode();
+
+            // Find and call ResetGame on the Spawner
+            Spawner spawner = FindObjectOfType<Spawner>();
+            if (spawner != null)
+            {
+                spawner.ResetGame();
+            }
         }
     }
-
 }

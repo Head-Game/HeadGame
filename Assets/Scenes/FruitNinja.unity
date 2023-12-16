@@ -986,6 +986,8 @@ MonoBehaviour:
   - {fileID: 3469416261526121853, guid: d5e3dc92758004c448ebb9c91d4562cd, type: 3}
   - {fileID: 9137535743039622809, guid: 6a28310721d8ca54086c5c300a663b94, type: 3}
   bombPrefab: {fileID: 502755466114576495, guid: d99c48bb415f49e47980e58f71e639bb, type: 3}
+  megaFruitPrefab: {fileID: 1322510157125763251, guid: 58b28b636542748f08f2e089d93da5b7, type: 3}
+  specialFruitPrefab: {fileID: 9137535743039622809, guid: adc0f1d6e312c4d2ab22b11550cf686b, type: 3}
   bombChance: 0.05
   initialMinSpawnDelay: 1
   initialMaxSpawnDelay: 2

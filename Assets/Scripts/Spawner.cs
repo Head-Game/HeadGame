@@ -6,6 +6,9 @@ public class Spawner : MonoBehaviour
 {
     public GameObject[] fruitPrefabs;
     public GameObject bombPrefab;
+    public GameObject megaFruitPrefab;
+    public GameObject specialFruitPrefab;
+
     [Range(0f, 1f)] public float bombChance = 0.05f;
 
     public float initialMinSpawnDelay = 1f;   // Higher initial spawn delay
@@ -31,6 +34,11 @@ public class Spawner : MonoBehaviour
     private int level = 1;
     private float levelUpTime = 30f;
     private float nextLevelUp;
+
+    // Performance tracking variables
+    private int successfulFruitCollections = 0;
+    private float totalCutTime = 0f;
+    private int cutFruitsCount = 0;
 
     private void Start()
     {
@@ -67,9 +75,8 @@ public class Spawner : MonoBehaviour
                 LevelUp();
             }
 
-            GameObject prefab = fruitPrefabs[Random.Range(0, fruitPrefabs.Length)];
-            if (Random.value < bombChance) prefab = bombPrefab;
-
+            GameObject prefab = ChoosePrefabToSpawn();
+  
             Vector3 position = GenerateSpawnPosition();
             Quaternion rotation = Quaternion.Euler(0f, 0f, Random.Range(minAngle, maxAngle));
 
@@ -86,6 +93,26 @@ public class Spawner : MonoBehaviour
 
             float spawnDelay = Mathf.Lerp(initialMaxSpawnDelay, finalMinSpawnDelay, level / 10f);
             yield return new WaitForSeconds(spawnDelay);
+        }
+    }
+
+    private GameObject ChoosePrefabToSpawn()
+    {
+        if (level >= 1 && Random.value < 0.9f) // Chance to spawn Special Fruit
+        {
+            return specialFruitPrefab;
+        }
+        else if (level >= 1 && Random.value < 0.1f) // Chance to spawn Mega Fruit
+        {
+            return megaFruitPrefab;
+        }
+        else if (Random.value < bombChance)
+        {
+            return bombPrefab;
+        }
+        else
+        {
+            return fruitPrefabs[Random.Range(0, fruitPrefabs.Length)];
         }
     }
 
@@ -109,7 +136,6 @@ public class Spawner : MonoBehaviour
         level = 1;
         bombChance = 0.05f; // Reset bomb chance
         UpdateLevelText();
-        // Reset other parameters if needed
     }
 
     private void UpdateLevelText()
@@ -118,5 +144,37 @@ public class Spawner : MonoBehaviour
             levelText.text = "Level: " + level;
         else
             Debug.LogError("Level text UI is not assigned!");
+    }
+
+    public void ResetGame()
+    {
+        ResetLevel();
+        StopAllCoroutines();
+        StartCoroutine(Spawn()); // Restart spawning
+    }
+
+    // New method for tracking fruit collection performance
+    public void OnFruitCut(float cutTime)
+    {
+        cutFruitsCount++;
+        totalCutTime += cutTime;
+
+        if (cutFruitsCount >= 10) // Check performance every 10 fruits
+        {
+            float averageCutTime = totalCutTime / cutFruitsCount;
+            AdjustDifficultyBasedOnPerformance(averageCutTime);
+            cutFruitsCount = 0; // Reset for the next batch
+            totalCutTime = 0f; // Reset total cut time
+        }
+    }
+
+    // New method for adjusting difficulty
+    private void AdjustDifficultyBasedOnPerformance(float averageCutTime)
+    {
+        // Example: Increase difficulty if the player is cutting fruits quickly
+        if (averageCutTime < 2.0f) // Example threshold, adjust as needed
+        {
+            LevelUp();
+        }
     }
 }
