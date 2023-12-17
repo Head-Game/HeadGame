@@ -1,6 +1,9 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Pv.Unity;
+using GoodEnough.TextToSpeech;
+using System.IO;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +12,7 @@ public class GameManager : MonoBehaviour
 
     private Blade blade;
     private Spawner spawner;
+    private PicovoiceManager _picovoiceManager;
 
     private int score;
 
@@ -16,11 +20,72 @@ public class GameManager : MonoBehaviour
     {
         blade = FindObjectOfType<Blade>();
         spawner = FindObjectOfType<Spawner>();
+
+        // Picovoice
+        string accessKey = "vIfZVH83r43ct+lGF5J8EWLMIhrwkr2JSk47MyOnHp9iGegW/iGksA==";
+        string keywordPath = Path.Combine(Application.streamingAssetsPath, "Head-Game_en_ios_v3_0_0.ppn");
+        string contextPath = Path.Combine(Application.streamingAssetsPath, "Fruit-Ninja-UI_en_ios_v3_0_0.rhn");
+        _picovoiceManager = _picovoiceManager = PicovoiceManager.Create(
+                                                accessKey,
+                                                keywordPath,
+                                                OnWakeWordDetected,
+                                                contextPath,
+                                                OnInferenceResult);
+
+
+        // iOS TTS
+        var speechParameters = new SpeechUtteranceParameters();
+        speechParameters.PitchMultiplier = 1f;
+        speechParameters.SpeechRate = 0.5f;
+        speechParameters.Volume = 1f;
+        speechParameters.PreUtteranceDelay = 0.1f;
+        speechParameters.Voice = TTS.GetVoiceForLanguage("en-US");
+    }
+
+    private void OnWakeWordDetected()
+    {
+        // Handle wake word detection (e.g., "Hey Game")
+        TTS.Speak("Yes?");
+    }
+
+    private void OnInferenceResult(Inference inference)
+    {
+        if(inference.IsUnderstood)
+        {
+            switch (inference.Intent)
+            {
+                case "startGame":
+                    NewGame();
+                    TTS.Speak("Starting Game Now");
+                    break;
+                case "restartGame":
+                    RestartGame();
+                    TTS.Speak("Restarting Game Now");
+                    break;
+                case "closeGame":
+                    CloseGame();
+                    TTS.Speak("Closing Game Now");
+                    break;
+                // Add other intents as needed
+            }
+        }
+        else
+        {
+            // Handle unsupported commands
+            TTS.Speak("Sorry, I can't understand.");
+        }
     }
 
     private void Start()
     {
-        NewGame();
+        try
+        {
+            _picovoiceManager.Start();
+        }
+        catch(PicovoiceException ex)
+        {
+            Debug.LogError(ex.ToString());
+        }
     }
 
     private void NewGame()
@@ -49,6 +114,18 @@ public class GameManager : MonoBehaviour
         foreach (Bomb bomb in bombs) {
             Destroy(bomb.gameObject);
         }
+    }
+
+    private void RestartGame()
+    {
+        NewGame();
+        // Additional code for restarting the game
+    }
+
+    private void CloseGame()
+    {
+        Application.Quit();
+        // Additional code for closing the game
     }
 
     public void IncreaseScore(int points)
