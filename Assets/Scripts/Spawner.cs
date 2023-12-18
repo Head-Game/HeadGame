@@ -50,7 +50,7 @@ public class Spawner : MonoBehaviour
             Resources.Load<AudioClip>("temp3"),
             Resources.Load<AudioClip>("temp4")
         };
-        Fruit.sliceClip = Resources.Load<AudioClip>("example_sound");
+        Fruit.sliceClip = Resources.Load<AudioClip>("squelch");
         Bomb.explosionClip = Resources.Load<AudioClip>("gameover");
         Bomb.tickingClip = Resources.Load<AudioClip>("tick");
 
