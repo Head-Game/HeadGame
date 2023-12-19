@@ -10,6 +10,10 @@ public class GameManager : MonoBehaviour
     public Text scoreText;
     public Image fadeImage;
 
+    public AudioSource audioSource;
+    public AudioClip welcomeMusic;
+    public string welcomeText;
+
     private Blade blade;
     private Spawner spawner;
     private PicovoiceManager _picovoiceManager;
@@ -81,11 +85,22 @@ public class GameManager : MonoBehaviour
         try
         {
             _picovoiceManager.Start();
+            StartCoroutine(WelcomeSequence());
         }
         catch(PicovoiceException ex)
         {
             Debug.LogError(ex.ToString());
         }
+    }
+
+    private IEnumerator WelcomeSequence()
+    {
+        audioSource.clip = welcomeMusic;
+        audioSource.Play();
+
+        yield return new WaitForSeconds(welcomeMusic.length);
+
+        TTS.Speak(welcomeText);
     }
 
     private void NewGame()
