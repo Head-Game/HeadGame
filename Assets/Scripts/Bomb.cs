@@ -4,6 +4,7 @@ public class Bomb : MonoBehaviour
 {
     public static AudioClip tickingClip;
     public static AudioClip explosionClip;
+    public static float volumeMultiplier = 50f;
 
     private AudioSource audioSource;
 
@@ -21,6 +22,9 @@ public class Bomb : MonoBehaviour
         audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
         audioSource.minDistance = 1.0f;
         audioSource.maxDistance = 50.0f;
+        Debug.Log("Volume multiplier is set to: " + volumeMultiplier);
+        audioSource.volume *= volumeMultiplier;
+        Debug.Log("Volume for " + gameObject.name + " after applying multiplier is: " + audioSource.volume);
     }
 
     private void Start()
@@ -42,13 +46,12 @@ public class Bomb : MonoBehaviour
         {
             GetComponent<Collider>().enabled = false;
             PlaySound(explosionClip);
-            FindObjectOfType<GameManager>().Explode();
-
-            // Find and call ResetGame on the Spawner
-            Spawner spawner = FindObjectOfType<Spawner>();
-            if (spawner != null)
+            // Get the GameManager instance and call RestartGame
+            GameManager gameManager = FindObjectOfType<GameManager>();
+            if (gameManager != null)
             {
-                spawner.ResetGame();
+                gameManager.Explode();
+                gameManager.OnGameOver();
             }
         }
     }

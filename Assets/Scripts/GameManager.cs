@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public AudioSource audioSource;
     public AudioClip welcomeMusic;
     public string welcomeText;
+    public string gameOverText;
 
     private Blade blade;
     private Spawner spawner;
@@ -98,9 +99,15 @@ public class GameManager : MonoBehaviour
         audioSource.clip = welcomeMusic;
         audioSource.Play();
 
-        yield return new WaitForSeconds(welcomeMusic.length);
+        Invoke("StopMusic", 5f);
+        yield return new WaitForSeconds(5f);
 
         TTS.Speak(welcomeText);
+    }
+
+    private void StopMusic()
+    {
+        audioSource.Stop();
     }
 
     private void NewGame()
@@ -111,6 +118,9 @@ public class GameManager : MonoBehaviour
 
         blade.enabled = true;
         spawner.enabled = true;
+
+        // Start spawning fruits
+        spawner.StartSpawning();
 
         score = 0;
         scoreText.text = score.ToString();
@@ -176,7 +186,7 @@ public class GameManager : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(1f);
 
-        NewGame();
+        ClearScene();
 
         elapsed = 0f;
 
@@ -192,4 +202,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void OnGameOver()
+    {
+        gameOverText = string.Format(gameOverText, score);
+        TTS.Speak(gameOverText);
+    }
 }

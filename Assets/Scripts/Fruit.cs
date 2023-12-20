@@ -10,6 +10,8 @@ public class Fruit : MonoBehaviour
     public static AudioClip[] spawnClips;
     public static AudioClip sliceClip;
 
+    public static float volumeMultiplier = 50f;
+
     private Rigidbody fruitRigidbody;
     private Collider fruitCollider;
     private ParticleSystem juiceEffect;
@@ -35,6 +37,9 @@ public class Fruit : MonoBehaviour
         audioSource.rolloffMode = AudioRolloffMode.Logarithmic;
         audioSource.minDistance = 1.0f;
         audioSource.maxDistance = 50.0f;
+        Debug.Log("Volume multiplier is set to: " + volumeMultiplier);
+        audioSource.volume *= volumeMultiplier;
+        Debug.Log("Volume for " + gameObject.name + " after applying multiplier is: " + audioSource.volume);
 
         // Randomly assign a spawn sound
         spawnClip = spawnClips[Random.Range(0, spawnClips.Length)];
@@ -56,6 +61,12 @@ public class Fruit : MonoBehaviour
     public virtual void Slice(Vector3 direction, Vector3 position, float force)
     {
         FindObjectOfType<GameManager>().IncreaseScore(points);
+
+        // Stop the spawnClip sound if it is playing
+        if (audioSource.isPlaying)
+        {
+            audioSource.Stop();
+        }
 
         // Disable the whole fruit and enable the sliced fruit
         fruitCollider.enabled = false;

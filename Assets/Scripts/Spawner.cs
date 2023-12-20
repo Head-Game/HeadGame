@@ -62,7 +62,10 @@ public class Spawner : MonoBehaviour
 
         spawnPosition = GenerateSpawnPosition(); // If you want a default spawn position
         initialVelocity = new Vector3(0, 10, 0); 
+    }
 
+    public void StartSpawning()
+    {
         StartCoroutine(Spawn());
         nextLevelUp = Time.time + levelUpTime;
         UpdateLevelText();
