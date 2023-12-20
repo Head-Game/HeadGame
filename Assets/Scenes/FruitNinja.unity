@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.43362728, g: 0.47157347, b: 0.5124305, a: 1}
+  m_IndirectSpecularColor: {r: 0.43632767, g: 0.4747122, b: 0.5147149, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1089,6 +1089,9 @@ MonoBehaviour:
   bombPrefab: {fileID: 502755466114576495, guid: d99c48bb415f49e47980e58f71e639bb, type: 3}
   megaFruitPrefab: {fileID: 1322510157125763251, guid: 58b28b636542748f08f2e089d93da5b7, type: 3}
   specialFruitPrefab: {fileID: 9137535743039622809, guid: adc0f1d6e312c4d2ab22b11550cf686b, type: 3}
+  slowFruitPrefab: {fileID: 1345022896480124042, guid: b5d02f94e121645af8e4ebdebc46beec, type: 3}
+  fruitPrefab: {fileID: 0}
+  slowDownFactor: 0.5
   bombChance: 0.05
   initialMinSpawnDelay: 1
   initialMaxSpawnDelay: 2

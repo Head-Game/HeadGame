@@ -43,7 +43,4 @@ public class SpecialFruit : Fruit
             }
         }
     }
-
-    // Score value for slicing the special fruit
-    // public int specialFruitScoreValue = 50; // Example value, set as appropriate
 }

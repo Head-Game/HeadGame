@@ -8,6 +8,12 @@ public class Spawner : MonoBehaviour
     public GameObject bombPrefab;
     public GameObject megaFruitPrefab;
     public GameObject specialFruitPrefab;
+    public GameObject slowFruitPrefab;
+    public GameObject fruitPrefab; 
+    private Vector3 spawnPosition; 
+    private Quaternion spawnRotation = Quaternion.identity; 
+    public float slowDownFactor = 0.5f;
+    private Vector3 initialVelocity; 
 
     [Range(0f, 1f)] public float bombChance = 0.05f;
 
@@ -54,10 +60,31 @@ public class Spawner : MonoBehaviour
         Bomb.explosionClip = Resources.Load<AudioClip>("gameover");
         Bomb.tickingClip = Resources.Load<AudioClip>("tick");
 
+        spawnPosition = GenerateSpawnPosition(); // If you want a default spawn position
+        initialVelocity = new Vector3(0, 10, 0); 
+
         StartCoroutine(Spawn());
         nextLevelUp = Time.time + levelUpTime;
         UpdateLevelText();
     }
+
+    private void SpawnFruit()
+    {
+        GameObject fruitGO = Instantiate(fruitPrefab, spawnPosition, spawnRotation);
+        Rigidbody fruitRB = fruitGO.GetComponent<Rigidbody>();
+
+        if (SlowFruit.IsPowerUpActive())
+        {
+            fruitRB.velocity *= slowDownFactor; // Use the same slow down factor as in SlowFruit
+            fruitRB.useGravity = false; // Suspend new fruits in the air
+        }
+        else
+        {
+            // Normal spawning logic
+            fruitRB.velocity = initialVelocity;
+        }
+    }
+
 
     private void OnDisable()
     {
@@ -76,18 +103,26 @@ public class Spawner : MonoBehaviour
             }
 
             GameObject prefab = ChoosePrefabToSpawn();
-  
             Vector3 position = GenerateSpawnPosition();
             Quaternion rotation = Quaternion.Euler(0f, 0f, Random.Range(minAngle, maxAngle));
 
             GameObject fruit = Instantiate(prefab, position, rotation);
             Rigidbody fruitRb = fruit.GetComponent<Rigidbody>();
 
-            float force = Mathf.Lerp(minForce, maxForce, level / 10f);
-            fruitRb.AddForce(Vector3.up * force, ForceMode.Impulse);
+            // If the slow-down power-up is active, apply the effects
+            if (SlowFruit.IsPowerUpActive())
+            {
+                fruitRb.velocity *= slowDownFactor; // Use the same slow down factor as in SlowFruit
+                fruitRb.useGravity = false; // Suspend new fruits in the air
+            }
+            else
+            {
+                // Apply the initial force as normal
+                float force = Mathf.Lerp(minForce, maxForce, level / 10f);
+                fruitRb.AddForce(Vector3.up * force, ForceMode.Impulse);
+            }
 
-            float gravityScale = Mathf.Lerp(maxGravity, minGravity, 1f - (level / 10f));
-            fruitRb.mass = gravityScale;
+            fruitRb.mass = Mathf.Lerp(maxGravity, minGravity, 1f - (level / 10f));
 
             Destroy(fruit, maxLifetime);
 
@@ -96,15 +131,20 @@ public class Spawner : MonoBehaviour
         }
     }
 
+
     private GameObject ChoosePrefabToSpawn()
     {
-        if (level >= 1 && Random.value < 0.9f) // Chance to spawn Special Fruit
+        if (level >= 3 && Random.value < 0.1f) // Chance to spawn Special Fruit
         {
             return specialFruitPrefab;
         }
-        else if (level >= 1 && Random.value < 0.1f) // Chance to spawn Mega Fruit
+        else if (level >= 5 && Random.value < 0.1f) // Chance to spawn Mega Fruit
         {
             return megaFruitPrefab;
+        }
+        else if (level >= 7 && Random.value < 0.1f) // Chance to spawn Slow Fruit
+        {
+            return slowFruitPrefab;
         }
         else if (Random.value < bombChance)
         {
