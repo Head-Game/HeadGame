@@ -45,12 +45,12 @@ public class Fruit : MonoBehaviour
         spawnClip = spawnClips[Random.Range(0, spawnClips.Length)];
     }
 
-    private void Start()
+    protected void Start()
     {
         PlaySound(spawnClip);
     }
 
-    private void PlaySound(AudioClip clip)
+    protected void PlaySound(AudioClip clip)
     {
         if (audioSource != null && clip != null)
         {

@@ -1,20 +1,40 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; // For List<T>
 
 public class SlowFruit : Fruit
 {
     public float slowDownDuration = 10f;
-    public float slowDownFactor = 0.1f; // More significant slow down
-    private static bool isPowerUpActive = false; // Static to keep track across all instances
+    public float slowDownFactor = 0.1f;
+    private static bool isPowerUpActive = false;
+
+    public static AudioClip powerUpSound;
+
+    private static AudioSource audioSource;
+
+    private void Awake()
+    {
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
+
+    protected new void Start()
+    {
+        PlaySound(powerUpSound);
+    }
 
     public override void Slice(Vector3 direction, Vector3 position, float force)
     {
         base.Slice(direction, position, force);
+
         if (!isPowerUpActive)
         {
             ActivatePowerUp();
+            PlaySound(powerUpSound);
         }
+
         Destroy(gameObject);
     }
 
@@ -22,15 +42,17 @@ public class SlowFruit : Fruit
     {
         isPowerUpActive = true;
         Fruit[] fruits = FindObjectsOfType<Fruit>();
+
         foreach (Fruit fruit in fruits)
         {
             Rigidbody rb = fruit.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.velocity *= slowDownFactor;
-                rb.useGravity = false; // Turn off gravity to make fruits suspend
+                rb.useGravity = false;
             }
         }
+
         StartCoroutine(ResetFruitSpeedAfterDelay(slowDownDuration));
     }
 

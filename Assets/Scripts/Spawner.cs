@@ -42,7 +42,6 @@ public class Spawner : MonoBehaviour
     private float nextLevelUp;
 
     // Performance tracking variables
-    private int successfulFruitCollections = 0;
     private float totalCutTime = 0f;
     private int cutFruitsCount = 0;
 
@@ -51,14 +50,17 @@ public class Spawner : MonoBehaviour
         // Set up audio clips
         Fruit.spawnClips = new AudioClip[]
         {
-            Resources.Load<AudioClip>("temp1"),
-            Resources.Load<AudioClip>("temp2"),
-            Resources.Load<AudioClip>("temp3"),
-            Resources.Load<AudioClip>("temp4")
+            Resources.Load<AudioClip>("finalSound1"),
+            Resources.Load<AudioClip>("finalSound2"),
+            Resources.Load<AudioClip>("finalSound3"),
+            Resources.Load<AudioClip>("finalSound4")
         };
-        Fruit.sliceClip = Resources.Load<AudioClip>("squelch");
+        Fruit.sliceClip = Resources.Load<AudioClip>("sliceFinal");
         Bomb.explosionClip = Resources.Load<AudioClip>("gameover");
         Bomb.tickingClip = Resources.Load<AudioClip>("tick");
+        SlowFruit.powerUpSound = Resources.Load<AudioClip>("special3");
+        MegaFruit.powerUpSound = Resources.Load<AudioClip>("special1");
+        SpecialFruit.powerUpSound = Resources.Load<AudioClip>("special2");
 
         spawnPosition = GenerateSpawnPosition(); // If you want a default spawn position
         initialVelocity = new Vector3(0, 10, 0); 
