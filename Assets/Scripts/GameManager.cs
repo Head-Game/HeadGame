@@ -119,6 +119,9 @@ public class GameManager : MonoBehaviour
         blade.enabled = true;
         spawner.enabled = true;
 
+        // Reset Game
+        spawner.ResetGame();
+
         // Start spawning fruits
         spawner.StartSpawning();
 
@@ -204,7 +207,6 @@ public class GameManager : MonoBehaviour
 
     public void OnGameOver()
     {
-        gameOverText = string.Format(gameOverText, score);
-        TTS.Speak(gameOverText);
+        TTS.Speak(string.Format(gameOverText, score));
     }
 }

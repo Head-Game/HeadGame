@@ -88,7 +88,6 @@ public class Spawner : MonoBehaviour
         }
     }
 
-
     private void OnDisable()
     {
         StopAllCoroutines();
@@ -134,7 +133,6 @@ public class Spawner : MonoBehaviour
         }
     }
 
-
     private GameObject ChoosePrefabToSpawn()
     {
         if (level >= 3 && Random.value < 0.1f) // Chance to spawn Special Fruit
@@ -174,11 +172,12 @@ public class Spawner : MonoBehaviour
         UpdateLevelText();
     }
 
-    public void ResetLevel()
+    public void ResetGame()
     {
         level = 1;
         bombChance = 0.05f; // Reset bomb chance
         UpdateLevelText();
+        StopAllCoroutines();
     }
 
     private void UpdateLevelText()
@@ -187,13 +186,6 @@ public class Spawner : MonoBehaviour
             levelText.text = "Level: " + level;
         else
             Debug.LogError("Level text UI is not assigned!");
-    }
-
-    public void ResetGame()
-    {
-        ResetLevel();
-        StopAllCoroutines();
-        StartCoroutine(Spawn()); // Restart spawning
     }
 
     // New method for tracking fruit collection performance
